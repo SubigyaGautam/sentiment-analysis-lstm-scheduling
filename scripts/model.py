@@ -38,6 +38,8 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torch.utils.data import TensorDataset, DataLoader
 from collections import Counter
+import time
+import datetime;
 
 # Input data files are available in the "../input/" directory.
 # For example, running this (by clicking run or pressing Shift+Enter) will list all files under the input directory
@@ -48,28 +50,41 @@ training_file_path = 'logs/trainingData.txt'
 testing_file_path = 'logs/testingData.txt'
 tensor_data_file_path_train = 'logs/tesorDataTest.txt'
 tensor_data_file_path_test = 'logs/tesorDataTrain.txt'
+training_log = 'logs/trainingLog.txt'
+unschedule_time__for_training_log = 'logs/unschedule_time__for_training_log.txt'
+
 
 
 
 text_content = ''
 # Open the file in append mode
-log_file = open(file_path, 'a')
-log_file_training = open(training_file_path, 'a')
-log_file_testing = open(testing_file_path, 'a')
-log_file_tensor_train = open(tensor_data_file_path_train, 'a')
-log_file_tensor_test = open(tensor_data_file_path_test, 'a')
+log_file = open(file_path, 'w+')
+log_file_training = open(training_file_path, 'w+')
+log_file_testing = open(testing_file_path, 'w+')
+log_file_tensor_train = open(tensor_data_file_path_train, 'w+')
+log_file_tensor_test = open(tensor_data_file_path_test, 'w+')
+log_file_training_log = open(training_log, 'w+')
+log_file_unschedule_time__for_training_log = open(unschedule_time__for_training_log, 'w+')
 
+
+log_file.truncate(0)
+log_file_training.truncate(0)
+log_file_testing.truncate(0)
+log_file_tensor_train.truncate(0)
+log_file_tensor_test.truncate(0)
+log_file_training_log.truncate(0)
+log_file_unschedule_time__for_training_log.truncate(0)
 
 
 # Log some initial content
-log_file.write("Logging started:\n")
+log_file.write(f"\n{datetime.datetime.now()} :: Logging started:")
 
 
 import os
 for dirname, _, filenames in os.walk('dataset/'):
     for filename in filenames:
         print(os.path.join(dirname, filename))
-        log_file.write(os.path.join(dirname, filename) + "\n")
+        log_file.write(f'\n{datetime.datetime.now()} :: os.path.join(dirname, filename) + ')
 
 # Importing Dataset
 df = pd.read_csv('dataset/Musical_instruments_reviews.csv', encoding = "ISO-8859-1")
@@ -82,8 +97,8 @@ del df['summary']
 
 print(df.head)
 print(df.overall.value_counts())
-log_file.write(f"{df.head} \n")
-log_file.write(f"{df.overall.value_counts()}\n")
+log_file.write(f" {datetime.datetime.now()} :: {df.head} ")
+log_file.write(f" {datetime.datetime.now()} :: {df.overall.value_counts()}")
 
 
 
@@ -104,7 +119,7 @@ def sentiment_rating(rating):
 df.overall = df.overall.apply(sentiment_rating) 
 
 print(df.head)
-log_file.write(f"{df.head}\n")
+log_file.write(f" {datetime.datetime.now()} :: {df.head}")
 
 # 0            1  Not much to write about here, but it does exac...
 # 1            1  The product does exactly as it should and is q...
@@ -112,7 +127,7 @@ log_file.write(f"{df.head}\n")
 # 3            1  Nice windscreen protects my MXL mic and preven...
 
 print(df.overall.value_counts())
-log_file.write(f"{df.overall.value_counts() }\n")
+log_file.write(f" {datetime.datetime.now()} :: {df.overall.value_counts() }")
 # 1    9022
 # 0    1239
 # Name: overall, dtype: int64
@@ -167,11 +182,11 @@ def lemmatize_words(text):
     
     
 df.text = df.text.apply(lemmatize_words)
-print('-------------- Affter lemmatization ------------------')
+print('-------------- After lemmatization ------------------')
 print(df.head)
 
-log_file.write('-------------- Affter lemmatization ------------------' + "\n")
-log_file.write(f"{df.head }\n")
+log_file.write(f'\n{datetime.datetime.now()} :: -------------- After lemmatization ------------------')
+log_file.write(f" {datetime.datetime.now()} :: {df.head }")
 
 # -------------- Affter lemmatization ------------------
 # <bound method NDFrame.head of        overall                                               text
@@ -241,37 +256,37 @@ def tockenize(x_train,y_train,x_val,y_val):
     # final_list_train = [seq + [0] * (max_length - len(seq)) for seq in final_list_train]
     # final_list_test = [seq + [0] * (max_length - len(seq)) for seq in final_list_test]
 
-    print('\n-------------final_list_train-------------------\n')
+    print('\n-------------final_list_train-------------------')
     print(final_list_train)
 
-    log_file_training.write('\n-------------final_list_train start-------------------\n')    
+    log_file_training.write(f'\n{datetime.datetime.now()} :: -------------final_list_train start-------------------')    
     # Convert each inner list to a string
     list_strings_final_list_train = [str(sublist) for sublist in final_list_train]
     # Merge the list representations into a single string
     string_final_list_train = '\n'.join(list_strings_final_list_train)
     log_file_training.write(string_final_list_train)
-    log_file_training.write('\n-------------final_list_train start end-------------------\n')    
+    log_file_training.write(f'\n{datetime.datetime.now()} :: -------------final_list_train start end-------------------')    
 
 
-    log_file_testing.write('\n-------------final_list_test start-------------------\n')
+    log_file_testing.write(f'\n{datetime.datetime.now()} :: -------------final_list_test start-------------------')
     list_strings_final_list_test = [str(sublist) for sublist in final_list_test]
     string_final_list_test = '\n'.join(list_strings_final_list_test)
     log_file_testing.write(string_final_list_test)
-    log_file_testing.write('\n-------------final_list_test start end-------------------\n')
+    log_file_testing.write(f'\n{datetime.datetime.now()} :: -------------final_list_test start end-------------------')
 
 
-    log_file.write('\n-------------encoded_test start -------------------\n')
+    log_file.write(f'\n{datetime.datetime.now()} :: -------------encoded_test start -------------------')
     list_strings_encoded_test = [str(sublist) for sublist in encoded_test]
     string_final_encoded_test = ' , '.join(list_strings_encoded_test)
     log_file.write(string_final_encoded_test)
-    log_file.write('\n-------------encoded_test end-------------------\n')
+    log_file.write(f'\n{datetime.datetime.now()} :: -------------encoded_test end-------------------')
 
 
-    log_file.write('\n-------------onehot_dict start-------------------\n')
+    log_file.write(f'\n{datetime.datetime.now()} :: -------------onehot_dict start-------------------')
     list_strings_onehot_dict = [str(sublist) for sublist in onehot_dict]
     string_final_onehot_dict = ' , '.join(list_strings_onehot_dict)
     log_file.write(string_final_onehot_dict)
-    log_file.write('\n-------------onehot_dict end-------------------\n')
+    log_file.write(f'\n{datetime.datetime.now()} :: -------------onehot_dict end-------------------')
 
 
 
@@ -301,22 +316,22 @@ print('-------------- test_indices ------------------')
 print(len(y_test)) 
 # 2053
 
-log_file.write('-------------shapes-------------------\n')
-log_file.write(f"{x_train.shape, good.shape, bad.shape}\n")
+log_file.write(f'\n{datetime.datetime.now()} :: -------------shapes-------------------')
+log_file.write(f" {datetime.datetime.now()} ::{x_train.shape, good.shape, bad.shape}")
 # ((8208,), (7197,), (1011,))
-log_file.write('-------------good-------------------\n')
-log_file.write(f"{good[0]}\n")
-log_file.write('-------------bad-------------------\n')
-log_file.write(f"{bad}\n")
+log_file.write('-------------good-------------------')
+log_file.write(f" {datetime.datetime.now()} ::{good[0]}")
+log_file.write('-------------bad-------------------')
+log_file.write(f" {datetime.datetime.now()} ::{bad}")
 
-log_file.write('-------------- train_indices ------------------\n')
-log_file.write(f"{len(y_train)}\n") 
+log_file.write(f'\n{datetime.datetime.now()} :: -------------- train_indices ------------------')
+log_file.write(f" {datetime.datetime.now()} ::{len(y_train)}") 
 # 8208
 
-log_file.write('-------------- test_indices ------------------\n')
-log_file.write(f"{len(y_test)}\n") 
-# 2053
+log_file.write(f'\n{datetime.datetime.now()} :: -------------- test_indices ------------------')
+log_file.write(f" {datetime.datetime.now()} ::{len(y_test)}") 
 
+# 2053
 
 
 # Text Reviews with Poor Ratings
@@ -335,7 +350,7 @@ plt.savefig('Text_Good_Ratings.png')
 
 plt.figure(figsize = (20,20)) 
 dd = pd.Series(y_train).value_counts()
-print(f'dd is : {dd}')
+print(f'\n{datetime.datetime.now()} :: dd is : {dd}')
 
 sns.barplot(x=np.array(['positive','negative']),y=dd.values)
 plt.savefig('Good Ratings Vs Bad Ratings.png')
@@ -344,7 +359,7 @@ plt.savefig('Good Ratings Vs Bad Ratings.png')
 x_train, y_train, x_test, y_test, vocab = tockenize(x_train, y_train, x_test, y_test)
 
 print(f'Length of vocabulary is {len(vocab)}')
-log_file.write(f'\n Length of vocabulary is : {len(vocab)} \n')
+log_file.write(f'\n {datetime.datetime.now()} :: Length of vocabulary is : {len(vocab)} ')
 
 # Length of vocabulary is 1000
 
@@ -355,7 +370,7 @@ plt.figure(figsize = (20,20))
 pd.Series(rev_len).hist()
 plt.savefig('ReviewLength.png')
 print(f'Description of the data : {pd.Series(rev_len).describe()}')
-log_file.write(f' \n \n Description of the data : {pd.Series(rev_len).describe()} \n')
+log_file.write(f'\n{datetime.datetime.now()} :: Description of the data : {pd.Series(rev_len).describe()} ')
 
 # Description of the data : 
 # count    8208.000000
@@ -390,31 +405,61 @@ train_data = TensorDataset(torch.from_numpy(x_train_pad), torch.from_numpy(y_tra
 valid_data = TensorDataset(torch.from_numpy(x_test_pad), torch.from_numpy(y_test))
 
 # dataloaders
+#  changing batch size to 48 because our data 8208 is perfectly divisible by 48 , 10267 / 31  = 331
 batch_size = 50
 
+# Assuming train_data is your original dataset
+original_dataset_size = len(train_data)
+original_dataset_size_val = len(valid_data)
+
+
+# Number of data points to remove
+num_data_points_to_remove = 8
+num_data_points_to_remove_val = 3
+
+# Indices of data points to remove
+indices_to_remove = torch.randperm(original_dataset_size)[:num_data_points_to_remove]
+indices_to_remove_v = torch.randperm(original_dataset_size_val)[:num_data_points_to_remove_val]
+
+
+# Remove the selected indices from the dataset
+filtered_dataset = [data_point for i, data_point in enumerate(train_data) if i not in indices_to_remove]
+filtered_datase_v = [data_point for i, data_point in enumerate(valid_data) if i not in indices_to_remove_v]
+
+
+# Create a new DataLoader with the filtered dataset
 # making sure to SHUFFLE the data
-train_loader = DataLoader(train_data, shuffle=True, batch_size=batch_size)
-valid_loader = DataLoader(valid_data, shuffle=True, batch_size=batch_size)
+
+train_loader = DataLoader(filtered_dataset, shuffle=True, batch_size=batch_size)
+valid_loader = DataLoader(filtered_datase_v, shuffle=True, batch_size=batch_size)
 
 for data, label in train_data:
-    data_str = ' '.join([str(item.item()) for item in data])
-    log_file_tensor_train.write(f"{data_str}, {label.item()}\n")
+    data_str = ','.join([str(item.item()) for item in data])
+    log_file_tensor_train.write(f" {datetime.datetime.now()} ::{data_str}, {label.item()}")
 
 for data, label in valid_data:
-    data_str = ' '.join([str(item.item()) for item in data])
-    log_file_tensor_test.write(f"{data_str}, {label.item()}\n")
+    data_str = ','.join([str(item.item()) for item in data])
+    log_file_tensor_test.write(f" {datetime.datetime.now()} ::{data_str}, {label.item()}")
 
 # obtaining one batch of training data
 dataiter = iter(train_loader)
 sample_x, sample_y = next(dataiter)
 
+# obtaining one batch of training data
+dataiter_v = iter(valid_loader)
+sample_x_v, sample_y_v = next(dataiter_v)
+
 print('Sample input size: ', sample_x.size()) # batch_size, seq_length
 print('Sample input: \n', sample_x)
 print('Sample input: \n', sample_y)
 
-log_file.write(f' \n Sample input size: : {sample_x.size()} \n')
-log_file.write(f' \n Sample input size: sample_x : {sample_x} \n')
-log_file.write(f' \n Sample input size: sample_y : {sample_y} \n')
+print('Sample input size: (valid) ', sample_x_v.size()) # batch_size, seq_length
+print('Sample input (valid): \n', sample_x_v)
+print('Sample input (valid): \n', sample_y_v)
+
+log_file.write(f' \n{datetime.datetime.now()} ::  Sample input size: : {sample_x.size()} ')
+log_file.write(f' \n{datetime.datetime.now()} ::  Sample input size: sample_x : {sample_x} ')
+log_file.write(f' \n{datetime.datetime.now()} ::  Sample input size: sample_y : {sample_y} ')
 
 # Sample input size:  torch.Size([50, 500])
 # Sample input: 
@@ -436,6 +481,13 @@ vocab_size = len(vocab) + 1 #extra 1 for padding
 embedding_dim = 64
 output_dim = 1
 hidden_dim = 256
+hidden_layer_batch_size = 8
+# We need to add an embedding layer because there are less words in our vocabulary.
+# It is massively inefficient to one-hot encode that many classes. So, instead of one-hot encoding,
+# we can have an embedding layer and use that layer as a lookup table. 
+# You could train an embedding layer using Word2Vec,
+# then load it here. But, it's fine to just make a new layer, using it for only dimensionality reduction, 
+# and let the network learn the weights.
 
 class SentimentRNN(nn.Module):
     def __init__(self, no_layers, vocab_size, hidden_dim, embedding_dim, drop_prob=0.5):
@@ -463,9 +515,14 @@ class SentimentRNN(nn.Module):
         # linear and sigmoid layer
         self.fc = nn.Linear(self.hidden_dim, output_dim)
         self.sig = nn.Sigmoid()
+        log_file_training_log.write(f'\n{datetime.datetime.now()} -------------------------------__init__-------------------------------------------------')
+
         
-    def forward(self,x,hidden):
-        batch_size = x.size(0)
+    def forward(self, x, hidden):
+        batch_size = 50
+
+        print(f' forward : batch_size  , x.size(0) : {batch_size} , {x.size(0)}')
+        log_file_training_log.write(f'\n{datetime.datetime.now()} ::  forward : batch_size  , x.size(0) : {batch_size} , {x.size(0)}')
 
         # embeddings and lstm_out
         embeds = self.embedding(x)
@@ -493,13 +550,11 @@ class SentimentRNN(nn.Module):
         ''' Initializes hidden state '''
         # Create two new tensors with sizes n_layers x batch_size x hidden_dim,
         # initialized to zero, for hidden state and cell state of LSTM
-        h0 = torch.zeros((self.no_layers,batch_size,self.hidden_dim)).to(device)
-        c0 = torch.zeros((self.no_layers,batch_size,self.hidden_dim)).to(device)
-        hidden = (h0,c0)
+        h0 = torch.zeros((self.no_layers, batch_size, self.hidden_dim)).to(device)
+        c0 = torch.zeros((self.no_layers, batch_size, self.hidden_dim)).to(device)
+        hidden = (h0, c0)
         return hidden
 
-              
-              
 # If we have a GPU available, we'll set our device to GPU. 
 
 # # compose the LSTM Network
@@ -510,87 +565,262 @@ is_cuda = torch.cuda.is_available()
 if is_cuda:
     device = torch.device("cuda")
     print("GPU is available")
-    log_file.write(f' GPU is available \n')
+    log_file.write(f' GPU is available ')
 
 else:
     device = torch.device("cpu")
     print("GPU not available, CPU used")
-    log_file.write(f'GPU not available, CPU used \n')
+    log_file.write(f'GPU not available, CPU used ')
 
 
+# Building model
+log_file.write(f'\n{datetime.datetime.now()} ::  Building Model:')
+log_file.write(f'\n{datetime.datetime.now()} ::  no_layers : {no_layers}')
+log_file.write(f'\n{datetime.datetime.now()} ::  vocab_size : {vocab_size}')
+log_file.write(f'\n{datetime.datetime.now()} ::  hidden_dim : {hidden_dim}')
+log_file.write(f'\n{datetime.datetime.now()} ::  embedding_dim : {embedding_dim}')
+log_file.write(f'\n{datetime.datetime.now()} :: drop_prob : 0.5 ')
 
+print(f' Building Model:')
+print(f' no_layers : {no_layers}')
+print(f' vocab_size : {vocab_size}')
+print(f' hidden_dim : {hidden_dim}')
+print(f' embedding_dim : {embedding_dim}')
+print(f' drop_prob : 0.5 ')
 model = SentimentRNN(no_layers, vocab_size, hidden_dim, embedding_dim, drop_prob=0.5)
 
 #moving to gpu
 model.to(device)
 
 print(model)
-log_file.write(f' \n model: : {model} \n')
+log_file.write(f' \n model: : {model} ')
 
-# Close the file when done logging
-log_file.close()
 
-print(f"Logging completed. File '{file_path}' has been appended with new content.")
+print(f"\n{datetime.datetime.now()} :: Logging completed. File '{file_path}' has been appended with new content.")
 ################################################################
-# vectorizer = CountVectorizer(min_df=0,max_df=1,binary=False,ngram_range=(1,3))
-# vectorizer.fit(df.text)
 
-# X_train_vec = vectorizer.transform(x_train)
-# X_test_vec = vectorizer.transform(x_test)
+#  Training
 
-# print('-------------X_train_vec-------------------')
-# # print(X_train_vec)
+# Log some initial content
+log_file_training_log.write(f"\n{datetime.datetime.now()} :: ------------------------------- Training started ------------------------------- ")
+print("\n ------------------------------- Training started ------------------------------- ")
 
-# print('-------------X_test_vec-------------------')
-# # print(X_test_vec)
+lr=0.001
+criterion = nn.BCELoss()
+optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
-# print('-------------X_train_vec.shape-------------')
-# print(X_train_vec.shape)
+# function to predict accuracy
+def acc(pred,label):
+    pred = torch.round(pred.squeeze())
+    return torch.sum(pred == label.squeeze()).item()
 
-# print('-------------X_test_vec.shape-------------')
-# print(X_test_vec.shape)
+clip = 5
+epochs = 5 
+valid_loss_min = np.Inf
+train_times = []
 
+# train for some number of epochs
+epoch_tr_loss,epoch_vl_loss = [],[]
+epoch_tr_acc,epoch_vl_acc = [],[]
 
+print("\n{datetime.datetime.now()} :: ------------------------------- Entering epoch ------------------------------- ")
+log_file_training_log.write(f'\n{datetime.datetime.now()} :: ------------------------------- Entering epoch : {epochs} ------------------------------- ')
 
+for epoch in range(epochs):
+    start_time = time.time()
 
-# # If we have a GPU available, we'll set our device to GPU. We'll use this device variable later in our code.
-# if is_cuda:
-#     device = torch.device("cuda")
-#     print("GPU is available")
-# else:
-#     device = torch.device("cpu")
-#     print("GPU not available, CPU used")
-
-# # create Tensor datasets
-
-# # Assuming X_train_vec is  csr_matrix and y_train is a numpy array
-# X_train_array = X_train_vec.toarray()
-# X_test_array = X_test_vec.toarray()
-
-
-# # Create the TensorDataset
-# train_data = TensorDataset(torch.from_numpy(X_train_array), torch.from_numpy(y_train))
-# valid_data = TensorDataset(torch.from_numpy(X_test_array), torch.from_numpy(y_test))
-
-# print('-------------train_data-------------')
-# print(train_data)
-# print('-------------valid_data-------------')
-# print(valid_data)
+    log_file_training_log.write(f"\n{datetime.datetime.now()} :: ------------------------------- Training started ------------------------------- ")
+    print(f'Epoch {epoch+1}') 
+    log_file_training_log.write(f'\n{datetime.datetime.now()} :::: Epoch :  {epoch+1}') 
+    log_file_training_log.write(f'\n{datetime.datetime.now()} :::: start_time :  {start_time}') 
 
 
 
-# # dataloaders
-# batch_size = 50
+    train_losses = []
+    train_acc = 0.0
+    model.train()
 
-# # make sure to SHUFFLE your data
-# train_loader = DataLoader(train_data, shuffle=True, batch_size=batch_size)
-# valid_loader = DataLoader(valid_data, shuffle=True, batch_size=batch_size)
+    # initialize hidden state 
+    batch_size = 50
+    h = model.init_hidden(batch_size)
 
-# # obtain one batch of training data
-# dataiter = iter(train_loader)
-# sample_x, sample_y = dataiter.next()
+    count = 0
+    for inputs, labels in train_loader:
+        count = count + 1
+        log_file_training_log.write(f'\n{datetime.datetime.now()}::------------------for inputs, labels in train_loader:) : iteration {count}-------------------------------------------- ')
 
-# print('Sample input size: ', sample_x.size()) # batch_size, seq_length
-# print('Sample input: \n', sample_x)
-# print('Sample input: \n', sample_y)
+        inputs, labels = inputs.to(device), labels.to(device)   
+        # Creating new variables for the hidden state, otherwise
+        # we'd backprop through the entire training history
+        h = tuple([each.data for each in h])
 
+        
+        model.zero_grad()
+
+        output,h = model(inputs,h)
+        
+        # calculate the loss and perform backprop
+        loss = criterion(output.squeeze(), labels.float())
+        loss.backward()
+        train_losses.append(loss.item())
+
+        # calculating accuracy
+        accuracy = acc(output,labels)
+        train_acc += accuracy
+
+        #`clip_grad_norm` helps prevent the exploding gradient problem in RNNs / LSTMs.
+        nn.utils.clip_grad_norm_(model.parameters(), clip)
+        optimizer.step()
+        log_file_training_log.write(f'\n{datetime.datetime.now()} :: last step of (for inputs, labels in train_loader: ------------------------------------ ')
+
+    end_time = time.time()
+    epoch_time = end_time - start_time
+    train_times.append(epoch_time)
+    print('Epoch [{}/{}], Time: {:.4f} seconds'.format(epoch+1, epochs, epoch_time))
+    log_file_training_log.write('Epoch [{}/{}], Time: {:.4f} seconds'.format(epoch+1, epochs, epoch_time))
+    log_file_training_log.write(f'\n{datetime.datetime.now()} :: Exit (for inputs, labels in train_loader):-------------------------------------------- ')
+    print(f'\n{datetime.datetime.now()} :: Exit (for inputs, labels in train_loader):-------------------------------------------- ')
+
+    val_h = model.init_hidden(batch_size)
+    val_losses = []
+    val_acc = 0.0
+    model.eval()
+    countL = 0
+    for inputs, labels in valid_loader:
+            countL = countL +1
+
+            val_h = tuple([each.data for each in val_h])
+
+            inputs, labels = inputs.to(device), labels.to(device)
+
+            output, val_h = model(inputs, val_h)
+            val_loss = criterion(output.squeeze(), labels.float())
+
+            val_losses.append(val_loss.item())
+            
+            accuracy = acc(output,labels)
+            val_acc += accuracy
+
+    epoch_train_loss = np.mean(train_losses)
+    epoch_val_loss = np.mean(val_losses)
+    epoch_train_acc = train_acc/len(train_loader.dataset)
+    epoch_val_acc = val_acc/len(valid_loader.dataset)
+    epoch_tr_loss.append(epoch_train_loss)
+    epoch_vl_loss.append(epoch_val_loss)
+    epoch_tr_acc.append(epoch_train_acc)
+    epoch_vl_acc.append(epoch_val_acc)
+
+    print(f'Epoch {epoch+1}') 
+    print(f'train_loss : {epoch_train_loss} val_loss : {epoch_val_loss}')
+    print(f'train_accuracy : {epoch_train_acc*100} val_accuracy : {epoch_val_acc*100}')
+
+    log_file_training_log.write(f'\n{datetime.datetime.now()} :: Epoch {epoch+1}') 
+    log_file_training_log.write(f'\n{datetime.datetime.now()} :: train_loss : {epoch_train_loss} val_loss : {epoch_val_loss}')
+    log_file_training_log.write(f'\n{datetime.datetime.now()} :: train_accuracy : {epoch_train_acc*100} val_accuracy : {epoch_val_acc*100}')
+
+    if epoch_val_loss <= valid_loss_min:
+        # Create the directory if it does not exist
+        # directory = '/working'
+        # os.makedirs(directory, exist_ok=True)
+
+        # # Your model saving code
+        # torch.save(model.state_dict(), os.path.join(directory, 'state_dict.pth'))
+        relative_path = '1st Sem/Deep Learning CSCE598/Project/working/state_dict.pth'
+        file_path = 'D:/Subigya/MS_CS_Assignments/1st Sem/Deep Learning CSCE598/Project/working/state_dict.pth'
+        # when you want to save only the parameters and need to rebuild the model separately.
+        torch.save(model.state_dict(), file_path) 
+
+        # when you want to save the entire model, including its architecture, 
+        # and plan to load it for further training or inference in the same environment where the model class is defined.
+        torch.save(model , file_path)
+
+        print('Validation loss decreased ({:.6f} --> {:.6f}).  Saving model ...'.format(valid_loss_min,epoch_val_loss))
+        log_file_training_log.write('\n Validation loss decreased ({:.6f} --> {:.6f}).  Saving model ...'.format(valid_loss_min,epoch_val_loss))
+        print(f'\n Model is saved : {os.getcwd()}')
+
+        valid_loss_min = epoch_val_loss
+    print(25*'==')
+    log_file_training_log.write(25*'==')
+
+
+log_file_unschedule_time__for_training_log.write(','.join(map(str, data)))
+
+fig = plt.figure(figsize = (20, 6))
+plt.subplot(1, 2, 1)
+plt.plot(epoch_tr_acc, label='Train Acc')
+plt.plot(epoch_vl_acc, label='Validation Acc')
+plt.legend()
+plt.grid()
+plt.title("Accuracy")
+plt.savefig('Accuracy.png')
+
+    
+plt.subplot(1, 2, 2)
+plt.plot(epoch_tr_loss, label='Train loss')
+plt.plot(epoch_vl_loss, label='Validation loss')
+plt.title("Loss")
+plt.legend()
+plt.grid()
+plt.savefig('Loss.png')
+
+plt.plot(range(1, epoch+1), train_times, marker='o')
+plt.xlabel('Epoch')
+plt.ylabel('Training Time (seconds)')
+plt.title('Training Time per Epoch')
+plt.grid(True)
+plt.legend()
+plt.savefig('Loss.png')
+
+#  Inference
+def predict_text(text):
+        word_seq = np.array([vocab[preprocess_string(word)] for word in text.split() 
+                        if preprocess_string(word) in vocab.keys()])
+        word_seq = np.expand_dims(word_seq, axis=0)
+        pad = torch.from_numpy(padding_(word_seq, 500))
+        inputs = pad.to(device)
+        batch_size = 1
+        h = model.init_hidden(batch_size)
+        h = tuple([each.data for each in h])
+        output, h = model(inputs, h)
+        
+        # Instead of returning a Python scalar, return the entire tensor or convert it to a NumPy array 
+        # return(output.item())
+        print(f'\n {datetime.datetime.now()} output :: {output}')
+        return output.detach().cpu().numpy()[0]
+
+
+# review	sentiment
+# One of	positive
+
+# overall    text
+# 1  much write here, exactly suppose to. filter po
+
+index = 30
+print(df['text'][index])
+print('=' * 70)
+print(f'Actual sentiment is: {df["overall"][index]}')
+print('=' * 70)
+pro_tensor = predict_text(df['text'][index])  # Notice the variable name change to avoid conflict with 'pro'
+status = "positive" if pro_tensor > 0.5 else "negative"
+pro_tensor = (1 - pro_tensor) if status == "negative" else pro_tensor
+
+pro = pro_tensor.item()  # Convert to Python scalar if needed
+print(f'Predicted sentiment is {status} with a probability of {pro}')
+log_file_training_log.write(f'\n{datetime.datetime.now()} :: Predicted sentiment is {status} with a probability of {pro}')
+
+index = 32
+print(df['text'][index])
+print('='*70)
+print(f'Actual sentiment is  : {df["overall"][index]}')
+print('='*70)
+pro_tensor_2 = predict_text(df['text'][index])
+status = "positive" if pro_tensor_2 > 0.5 else "negative"
+pro_tensor_2 = (1 - pro_tensor_2) if status == "negative" else pro_tensor_2
+
+pro = pro_tensor.item()  # Convert to Python scalar if needed
+print(f'predicted sentiment is {status} with a probability of {pro}')
+log_file_training_log.write(f'\n{datetime.datetime.now()} :: Predicted sentiment is {status} with a probability of {pro}')
+
+
+log_file.close()
+log_file_training_log.close()
