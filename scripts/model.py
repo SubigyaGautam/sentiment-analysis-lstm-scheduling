@@ -45,49 +45,62 @@ import datetime;
 # For example, running this (by clicking run or pressing Shift+Enter) will list all files under the input directory
 
 # File path and name
-file_path = 'logs/logfile.txt'
-training_file_path = 'logs/trainingData.txt'
-testing_file_path = 'logs/testingData.txt'
-tensor_data_file_path_train = 'logs/tesorDataTest.txt'
-tensor_data_file_path_test = 'logs/tesorDataTrain.txt'
-training_log = 'logs/trainingLog.txt'
-unschedule_time__for_training_log = 'logs/unschedule_time__for_training_log.txt'
+import os
+import datetime
+
+# File path and name
+file_path = 'logfile.txt'
+training_file_path = 'trainingData.txt'
+testing_file_path = 'testingData.txt'
+tensor_data_file_path_train = 'tensorDataTrain.txt'
+tensor_data_file_path_test = 'tensorDataTest.txt'
+training_log = 'trainingLog.txt'
+log_file_unschedule_time__for_training_log = 'unschedule_time_for_training_log.txt'
+log_file_training = 'logFileTraining.txt'
+log_file_testing = 'logFileTesting.txt'
 
 
+# Define paths relative to the current script location
+script_dir = os.path.dirname(os.path.abspath(__file__))
+log_dir = os.path.join(script_dir, '..', 'logs')
 
+# Ensure log directory exists
+os.makedirs(log_dir, exist_ok=True)
 
-text_content = ''
-# Open the file in append mode
-log_file = open(file_path, 'w+')
-log_file_training = open(training_file_path, 'w+')
-log_file_testing = open(testing_file_path, 'w+')
-log_file_tensor_train = open(tensor_data_file_path_train, 'w+')
-log_file_tensor_test = open(tensor_data_file_path_test, 'w+')
-log_file_training_log = open(training_log, 'w+')
-log_file_unschedule_time__for_training_log = open(unschedule_time__for_training_log, 'w+')
+# Define file paths
+file_paths = [
+    os.path.join(log_dir, file_path),
+    os.path.join(log_dir, training_file_path),
+    os.path.join(log_dir, testing_file_path),
+    os.path.join(log_dir, tensor_data_file_path_train),
+    os.path.join(log_dir, tensor_data_file_path_test),
+    os.path.join(log_dir, training_log),
+    os.path.join(log_dir, log_file_unschedule_time__for_training_log),
+    os.path.join(log_dir, log_file_training),
+    os.path.join(log_dir, log_file_testing)
+]
 
+# Open files in write mode, create if not exist
+log_files = [open(path, 'w') for path in file_paths]
 
-log_file.truncate(0)
-log_file_training.truncate(0)
-log_file_testing.truncate(0)
-log_file_tensor_train.truncate(0)
-log_file_tensor_test.truncate(0)
-log_file_training_log.truncate(0)
-log_file_unschedule_time__for_training_log.truncate(0)
-
+# Truncate files
+for log_file in log_files:
+    log_file.truncate(0)
 
 # Log some initial content
-log_file.write(f"\n{datetime.datetime.now()} :: Logging started:")
+for log_file in log_files:
+    log_file.write(f"{datetime.datetime.now()} :: Logging started:\n")
 
-
-import os
-for dirname, _, filenames in os.walk('dataset/'):
+# Log file paths
+for dirname, _, filenames in os.walk(os.path.join(script_dir, '..', 'dataset')):
     for filename in filenames:
-        print(os.path.join(dirname, filename))
-        log_file.write(f'\n{datetime.datetime.now()} :: os.path.join(dirname, filename) + ')
+        file_path = os.path.join(dirname, filename)
+        print(file_path)
+        for log_file in log_files:
+            log_file.write(f'{datetime.datetime.now()} :: {file_path}\n')
 
 # Importing Dataset
-df = pd.read_csv('dataset/Musical_instruments_reviews.csv', encoding = "ISO-8859-1")
+df = pd.read_csv('../dataset/Dummy_Musical_instruments_reviews.csv', encoding = "ISO-8859-1")
 
 # Removing the unwanted columns from the dataframe and combining reviewText and summary column to one column and naming it as text
 df = df.drop(columns=["reviewerID","asin","reviewerName","helpful","unixReviewTime", "reviewTime"])
@@ -515,14 +528,14 @@ class SentimentRNN(nn.Module):
         # linear and sigmoid layer
         self.fc = nn.Linear(self.hidden_dim, output_dim)
         self.sig = nn.Sigmoid()
-        log_file_training_log.write(f'\n{datetime.datetime.now()} -------------------------------__init__-------------------------------------------------')
+        log_file_training.write(f'\n{datetime.datetime.now()} -------------------------------__init__-------------------------------------------------')
 
         
     def forward(self, x, hidden):
         batch_size = 50
 
         print(f' forward : batch_size  , x.size(0) : {batch_size} , {x.size(0)}')
-        log_file_training_log.write(f'\n{datetime.datetime.now()} ::  forward : batch_size  , x.size(0) : {batch_size} , {x.size(0)}')
+        log_file_training.write(f'\n{datetime.datetime.now()} ::  forward : batch_size  , x.size(0) : {batch_size} , {x.size(0)}')
 
         # embeddings and lstm_out
         embeds = self.embedding(x)
@@ -602,7 +615,7 @@ print(f"\n{datetime.datetime.now()} :: Logging completed. File '{file_path}' has
 #  Training
 
 # Log some initial content
-log_file_training_log.write(f"\n{datetime.datetime.now()} :: ------------------------------- Training started ------------------------------- ")
+log_file_training.write(f"\n{datetime.datetime.now()} :: ------------------------------- Training started ------------------------------- ")
 print("\n ------------------------------- Training started ------------------------------- ")
 
 lr=0.001
@@ -624,15 +637,15 @@ epoch_tr_loss,epoch_vl_loss = [],[]
 epoch_tr_acc,epoch_vl_acc = [],[]
 
 print("\n{datetime.datetime.now()} :: ------------------------------- Entering epoch ------------------------------- ")
-log_file_training_log.write(f'\n{datetime.datetime.now()} :: ------------------------------- Entering epoch : {epochs} ------------------------------- ')
+log_file_training.write(f'\n{datetime.datetime.now()} :: ------------------------------- Entering epoch : {epochs} ------------------------------- ')
 
 for epoch in range(epochs):
     start_time = time.time()
 
-    log_file_training_log.write(f"\n{datetime.datetime.now()} :: ------------------------------- Training started ------------------------------- ")
+    log_file_training.write(f"\n{datetime.datetime.now()} :: ------------------------------- Training started ------------------------------- ")
     print(f'Epoch {epoch+1}') 
-    log_file_training_log.write(f'\n{datetime.datetime.now()} :::: Epoch :  {epoch+1}') 
-    log_file_training_log.write(f'\n{datetime.datetime.now()} :::: start_time :  {start_time}') 
+    log_file_training.write(f'\n{datetime.datetime.now()} :::: Epoch :  {epoch+1}') 
+    log_file_training.write(f'\n{datetime.datetime.now()} :::: start_time :  {start_time}') 
 
 
 
@@ -647,7 +660,7 @@ for epoch in range(epochs):
     count = 0
     for inputs, labels in train_loader:
         count = count + 1
-        log_file_training_log.write(f'\n{datetime.datetime.now()}::------------------for inputs, labels in train_loader:) : iteration {count}-------------------------------------------- ')
+        log_file_training.write(f'\n{datetime.datetime.now()}::------------------for inputs, labels in train_loader:) : iteration {count}-------------------------------------------- ')
 
         inputs, labels = inputs.to(device), labels.to(device)   
         # Creating new variables for the hidden state, otherwise
@@ -671,14 +684,14 @@ for epoch in range(epochs):
         #`clip_grad_norm` helps prevent the exploding gradient problem in RNNs / LSTMs.
         nn.utils.clip_grad_norm_(model.parameters(), clip)
         optimizer.step()
-        log_file_training_log.write(f'\n{datetime.datetime.now()} :: last step of (for inputs, labels in train_loader: ------------------------------------ ')
+        log_file_training.write(f'\n{datetime.datetime.now()} :: last step of (for inputs, labels in train_loader: ------------------------------------ ')
 
     end_time = time.time()
     epoch_time = end_time - start_time
     train_times.append(epoch_time)
     print('Epoch [{}/{}], Time: {:.4f} seconds'.format(epoch+1, epochs, epoch_time))
-    log_file_training_log.write('Epoch [{}/{}], Time: {:.4f} seconds'.format(epoch+1, epochs, epoch_time))
-    log_file_training_log.write(f'\n{datetime.datetime.now()} :: Exit (for inputs, labels in train_loader):-------------------------------------------- ')
+    log_file_training.write('Epoch [{}/{}], Time: {:.4f} seconds'.format(epoch+1, epochs, epoch_time))
+    log_file_training.write(f'\n{datetime.datetime.now()} :: Exit (for inputs, labels in train_loader):-------------------------------------------- ')
     print(f'\n{datetime.datetime.now()} :: Exit (for inputs, labels in train_loader):-------------------------------------------- ')
 
     val_h = model.init_hidden(batch_size)
@@ -714,9 +727,9 @@ for epoch in range(epochs):
     print(f'train_loss : {epoch_train_loss} val_loss : {epoch_val_loss}')
     print(f'train_accuracy : {epoch_train_acc*100} val_accuracy : {epoch_val_acc*100}')
 
-    log_file_training_log.write(f'\n{datetime.datetime.now()} :: Epoch {epoch+1}') 
-    log_file_training_log.write(f'\n{datetime.datetime.now()} :: train_loss : {epoch_train_loss} val_loss : {epoch_val_loss}')
-    log_file_training_log.write(f'\n{datetime.datetime.now()} :: train_accuracy : {epoch_train_acc*100} val_accuracy : {epoch_val_acc*100}')
+    log_file_training.write(f'\n{datetime.datetime.now()} :: Epoch {epoch+1}') 
+    log_file_training.write(f'\n{datetime.datetime.now()} :: train_loss : {epoch_train_loss} val_loss : {epoch_val_loss}')
+    log_file_training.write(f'\n{datetime.datetime.now()} :: train_accuracy : {epoch_train_acc*100} val_accuracy : {epoch_val_acc*100}')
 
     if epoch_val_loss <= valid_loss_min:
         # Create the directory if it does not exist
@@ -725,8 +738,7 @@ for epoch in range(epochs):
 
         # # Your model saving code
         # torch.save(model.state_dict(), os.path.join(directory, 'state_dict.pth'))
-        relative_path = '1st Sem/Deep Learning CSCE598/Project/working/state_dict.pth'
-        file_path = 'D:/Subigya/MS_CS_Assignments/1st Sem/Deep Learning CSCE598/Project/working/state_dict.pth'
+        file_path = 'D:/Subigya/MS_CS_Assignments/1st Sem/Deep Learning CSCE598/Project/working/state_dict_smallDS.pth'
         # when you want to save only the parameters and need to rebuild the model separately.
         torch.save(model.state_dict(), file_path) 
 
@@ -735,12 +747,12 @@ for epoch in range(epochs):
         torch.save(model , file_path)
 
         print('Validation loss decreased ({:.6f} --> {:.6f}).  Saving model ...'.format(valid_loss_min,epoch_val_loss))
-        log_file_training_log.write('\n Validation loss decreased ({:.6f} --> {:.6f}).  Saving model ...'.format(valid_loss_min,epoch_val_loss))
+        log_file_training.write('\n Validation loss decreased ({:.6f} --> {:.6f}).  Saving model ...'.format(valid_loss_min,epoch_val_loss))
         print(f'\n Model is saved : {os.getcwd()}')
 
         valid_loss_min = epoch_val_loss
     print(25*'==')
-    log_file_training_log.write(25*'==')
+    log_file_training.write(25*'==')
 
 
 log_file_unschedule_time__for_training_log.write(','.join(map(str, data)))
@@ -806,7 +818,7 @@ pro_tensor = (1 - pro_tensor) if status == "negative" else pro_tensor
 
 pro = pro_tensor.item()  # Convert to Python scalar if needed
 print(f'Predicted sentiment is {status} with a probability of {pro}')
-log_file_training_log.write(f'\n{datetime.datetime.now()} :: Predicted sentiment is {status} with a probability of {pro}')
+log_file_training.write(f'\n{datetime.datetime.now()} :: Predicted sentiment is {status} with a probability of {pro}')
 
 index = 32
 print(df['text'][index])
@@ -819,8 +831,13 @@ pro_tensor_2 = (1 - pro_tensor_2) if status == "negative" else pro_tensor_2
 
 pro = pro_tensor.item()  # Convert to Python scalar if needed
 print(f'predicted sentiment is {status} with a probability of {pro}')
-log_file_training_log.write(f'\n{datetime.datetime.now()} :: Predicted sentiment is {status} with a probability of {pro}')
+log_file_training.write(f'\n{datetime.datetime.now()} :: Predicted sentiment is {status} with a probability of {pro}')
 
 
 log_file.close()
-log_file_training_log.close()
+log_file_training.close()
+
+
+# Close log files
+for log_file in log_files:
+    log_file.close()
