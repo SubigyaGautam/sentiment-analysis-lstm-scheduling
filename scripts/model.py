@@ -49,7 +49,7 @@ import os
 import datetime
 
 # File path and name
-file_path = 'logfile.txt'
+logfile_path = 'logfile.txt'
 training_file_path = 'trainingData.txt'
 testing_file_path = 'testingData.txt'
 tensor_data_file_path_train = 'tensorDataTrain.txt'
@@ -60,16 +60,29 @@ log_file_training = 'logFileTraining.txt'
 log_file_testing = 'logFileTesting.txt'
 
 
+datasetPath = '../dataset/Dummy_Musical_instruments_reviews.csv'
+smallDataSet = True
+
 # Define paths relative to the current script location
 script_dir = os.path.dirname(os.path.abspath(__file__))
-log_dir = os.path.join(script_dir, '..', 'logs')
+
+if smallDataSet:
+    results = os.path.join(script_dir, '..', 'results','small_data_set')
+    log_dir = os.path.join(script_dir, '..', 'logs','small_data_set')
+    
+else:
+    results = os.path.join(script_dir, '..', 'results','big_data_set')
+    log_dir = os.path.join(script_dir, '..', 'logs','big_data_set')
+
 
 # Ensure log directory exists
 os.makedirs(log_dir, exist_ok=True)
+os.makedirs(results, exist_ok=True)
+
 
 # Define file paths
 file_paths = [
-    os.path.join(log_dir, file_path),
+    os.path.join(log_dir, logfile_path),
     os.path.join(log_dir, training_file_path),
     os.path.join(log_dir, testing_file_path),
     os.path.join(log_dir, tensor_data_file_path_train),
@@ -82,6 +95,16 @@ file_paths = [
 
 # Open files in write mode, create if not exist
 log_files = [open(path, 'w') for path in file_paths]
+
+log_file =  log_files[0]
+training_file_path = log_files[1]
+testing_file_path = log_files[2]
+tensor_data_file_path_train = log_files[3]
+tensor_data_file_path_test = log_files[4]
+training_log = log_files[5]
+log_file_unschedule_time__for_training_log = log_files[6]
+log_file_training = log_files[7]
+log_file_testing = log_files[8]
 
 # Truncate files
 for log_file in log_files:
@@ -99,8 +122,9 @@ for dirname, _, filenames in os.walk(os.path.join(script_dir, '..', 'dataset')):
         for log_file in log_files:
             log_file.write(f'{datetime.datetime.now()} :: {file_path}\n')
 
+
 # Importing Dataset
-df = pd.read_csv('../dataset/Dummy_Musical_instruments_reviews.csv', encoding = "ISO-8859-1")
+df = pd.read_csv(datasetPath, encoding = "ISO-8859-1")
 
 # Removing the unwanted columns from the dataframe and combining reviewText and summary column to one column and naming it as text
 df = df.drop(columns=["reviewerID","asin","reviewerName","helpful","unixReviewTime", "reviewTime"])
@@ -352,21 +376,21 @@ plt.figure(figsize = (20,20))
 wc = WordCloud(min_font_size = 3,  max_words = 3000 , width = 1600 , height = 800).generate(" ".join(bad))
 plt.imshow(wc,interpolation = 'bilinear')
 plt.title('Text Reviews with Bad Ratings')
-plt.savefig('Text_Bad_Ratings.png')
+plt.savefig(results +'\Text_Bad_Ratings.png')
 
 # Text Reviews with Good Ratings
 plt.figure(figsize = (20,20)) 
 wc = WordCloud(min_font_size = 3,  max_words = 3000 , width = 1600 , height = 800).generate(" ".join(good))
 plt.imshow(wc,interpolation = 'bilinear')
 plt.title('Text Reviews with Good Ratings')
-plt.savefig('Text_Good_Ratings.png')
+(results +'\Text_Good_Ratings.png')
 
 plt.figure(figsize = (20,20)) 
 dd = pd.Series(y_train).value_counts()
 print(f'\n{datetime.datetime.now()} :: dd is : {dd}')
 
 sns.barplot(x=np.array(['positive','negative']),y=dd.values)
-plt.savefig('Good Ratings Vs Bad Ratings.png')
+plt.savefig(results +'\Good Ratings Vs Bad Ratings.png')
 
 # Tokenize after representation
 x_train, y_train, x_test, y_test, vocab = tockenize(x_train, y_train, x_test, y_test)
@@ -381,7 +405,7 @@ rev_len = [len(i) for i in x_train]
 print(f'rev_len is : {rev_len}')
 plt.figure(figsize = (20,20)) 
 pd.Series(rev_len).hist()
-plt.savefig('ReviewLength.png')
+plt.savefig(results +'\ReviewLength.png')
 print(f'Description of the data : {pd.Series(rev_len).describe()}')
 log_file.write(f'\n{datetime.datetime.now()} :: Description of the data : {pd.Series(rev_len).describe()} ')
 
@@ -738,7 +762,7 @@ for epoch in range(epochs):
 
         # # Your model saving code
         # torch.save(model.state_dict(), os.path.join(directory, 'state_dict.pth'))
-        file_path = 'D:/Subigya/MS_CS_Assignments/1st Sem/Deep Learning CSCE598/Project/working/state_dict_smallDS.pth'
+        file_path = results +'state_dict_smallDS.pth'
         # when you want to save only the parameters and need to rebuild the model separately.
         torch.save(model.state_dict(), file_path) 
 
@@ -764,7 +788,7 @@ plt.plot(epoch_vl_acc, label='Validation Acc')
 plt.legend()
 plt.grid()
 plt.title("Accuracy")
-plt.savefig('Accuracy.png')
+plt.savefig(results +'\Accuracy.png')
 
     
 plt.subplot(1, 2, 2)
@@ -773,7 +797,7 @@ plt.plot(epoch_vl_loss, label='Validation loss')
 plt.title("Loss")
 plt.legend()
 plt.grid()
-plt.savefig('Loss.png')
+plt.savefig(results +'\Loss.png')
 
 plt.plot(range(1, epoch+1), train_times, marker='o')
 plt.xlabel('Epoch')
@@ -781,7 +805,7 @@ plt.ylabel('Training Time (seconds)')
 plt.title('Training Time per Epoch')
 plt.grid(True)
 plt.legend()
-plt.savefig('Loss.png')
+plt.savefig(results +'\Loss.png')
 
 #  Inference
 def predict_text(text):
