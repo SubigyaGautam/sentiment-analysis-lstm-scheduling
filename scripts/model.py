@@ -107,20 +107,20 @@ log_file_training = log_files[7]
 log_file_testing = log_files[8]
 
 # Truncate files
-for log_file in log_files:
-    log_file.truncate(0)
+for logFile in log_files:
+    logFile.truncate(0)
 
 # Log some initial content
-for log_file in log_files:
-    log_file.write(f"{datetime.datetime.now()} :: Logging started:\n")
+for logF in log_files:
+    logF.write(f"{datetime.datetime.now()} :: Logging started:\n")
 
 # Log file paths
 for dirname, _, filenames in os.walk(os.path.join(script_dir, '..', 'dataset')):
     for filename in filenames:
         file_path = os.path.join(dirname, filename)
         print(file_path)
-        for log_file in log_files:
-            log_file.write(f'{datetime.datetime.now()} :: {file_path}\n')
+        for file in log_files:
+            file.write(f'{datetime.datetime.now()} :: {file_path}\n')
 
 
 # Importing Dataset
