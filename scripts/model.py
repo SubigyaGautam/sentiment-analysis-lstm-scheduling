@@ -858,10 +858,7 @@ print(f'predicted sentiment is {status} with a probability of {pro}')
 log_file_training.write(f'\n{datetime.datetime.now()} :: Predicted sentiment is {status} with a probability of {pro}')
 
 
-log_file.close()
-log_file_training.close()
-
-
 # Close log files
-for log_file in log_files:
-    log_file.close()
+for logF in log_files:
+    logF.write(f"{datetime.datetime.now()} :: Logging Stopped:\n")
+    logF.close()
