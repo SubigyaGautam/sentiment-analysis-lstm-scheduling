@@ -472,11 +472,11 @@ valid_loader = DataLoader(filtered_datase_v, shuffle=True, batch_size=batch_size
 
 for data, label in train_data:
     data_str = ','.join([str(item.item()) for item in data])
-    log_file_tensor_train.write(f" {datetime.datetime.now()} ::{data_str}, {label.item()}")
+    tensor_data_file_path_train.write(f" {datetime.datetime.now()} ::{data_str}, {label.item()}")
 
 for data, label in valid_data:
     data_str = ','.join([str(item.item()) for item in data])
-    log_file_tensor_test.write(f" {datetime.datetime.now()} ::{data_str}, {label.item()}")
+    tensor_data_file_path_test.write(f" {datetime.datetime.now()} ::{data_str}, {label.item()}")
 
 # obtaining one batch of training data
 dataiter = iter(train_loader)
