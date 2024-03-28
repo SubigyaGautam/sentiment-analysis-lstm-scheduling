@@ -60,20 +60,29 @@ log_file_training = 'logFileTraining.txt'
 log_file_testing = 'logFileTesting.txt'
 
 
-datasetPath = '../dataset/Dummy_Musical_instruments_reviews.csv'
 smallDataSet = True
+scheduled = False
 
 # Define paths relative to the current script location
 script_dir = os.path.dirname(os.path.abspath(__file__))
-
+datasetPath = ''
 if smallDataSet:
-    results = os.path.join(script_dir, '..', 'results','small_data_set')
-    log_dir = os.path.join(script_dir, '..', 'logs','small_data_set')
-    
-else:
-    results = os.path.join(script_dir, '..', 'results','big_data_set')
-    log_dir = os.path.join(script_dir, '..', 'logs','big_data_set')
+    datasetPath = '../dataset/Dummy_Musical_instruments_reviews.csv'
+    if scheduled:
+        results = os.path.join(script_dir, '..', 'results','small_data_set' ,'scheduled')
+        log_dir = os.path.join(script_dir, '..', 'logs','small_data_set','scheduled')
+    else :
+        results = os.path.join(script_dir, '..', 'results','small_data_set','unscheduled')
+        log_dir = os.path.join(script_dir, '..', 'logs','small_data_set','unscheduled')
 
+else:
+    datasetPath = '../dataset/Dummy_Musical_instruments_reviews.csv'
+    if scheduled:
+        results = os.path.join(script_dir, '..', 'results','big_data_set' ,'scheduled')
+        log_dir = os.path.join(script_dir, '..', 'logs','big_data_set','scheduled')
+    else:
+        results = os.path.join(script_dir, '..', 'results','big_data_set','unscheduled')
+        log_dir = os.path.join(script_dir, '..', 'logs','big_data_set','unscheduled')
 
 # Ensure log directory exists
 os.makedirs(log_dir, exist_ok=True)
@@ -765,7 +774,19 @@ for epoch in range(epochs):
 
         # # Your model saving code
         # torch.save(model.state_dict(), os.path.join(directory, 'state_dict.pth'))
-        file_path = results +'state_dict_smallDS.pth'
+        if smallDataSet:
+            if scheduled:
+                modelFileName = 'state_dict_small_sch.pth'
+            else:
+                modelFileName = 'state_dict_small_unsch.pth'
+
+        else:
+            if scheduled:
+                modelFileName = 'state_dict_big_sch.pth'
+            else:
+                modelFileName = 'state_dict_big_unsch.pth'
+
+        file_path = results + modelFileName
         # when you want to save only the parameters and need to rebuild the model separately.
         torch.save(model.state_dict(), file_path) 
 
