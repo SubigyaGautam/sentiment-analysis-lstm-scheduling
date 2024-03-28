@@ -223,7 +223,7 @@ print('-------------- After lemmatization ------------------')
 print(df.head)
 
 log_file.write(f'\n{datetime.datetime.now()} :: -------------- After lemmatization ------------------')
-log_file.write(f" {datetime.datetime.now()} :: {df.head }")
+log_file.write(f"\n{datetime.datetime.now()} :: {df.head }")
 
 # -------------- Affter lemmatization ------------------
 # <bound method NDFrame.head of        overall                                               text
@@ -559,7 +559,6 @@ class SentimentRNN(nn.Module):
         batch_size = 50
 
         print(f' forward : batch_size  , x.size(0) : {batch_size} , {x.size(0)}')
-        log_file_training.write(f'\n{datetime.datetime.now()} ::  forward : batch_size  , x.size(0) : {batch_size} , {x.size(0)}')
 
         # embeddings and lstm_out
         embeds = self.embedding(x)
@@ -662,11 +661,15 @@ epoch_tr_acc,epoch_vl_acc = [],[]
 
 print("\n{datetime.datetime.now()} :: ------------------------------- Entering epoch ------------------------------- ")
 log_file_training.write(f'\n{datetime.datetime.now()} :: ------------------------------- Entering epoch : {epochs} ------------------------------- ')
+log_file_unschedule_time__for_training_log.write(f"\n{datetime.datetime.now()} :: ------------------------------- Starting Training ------------------------------- ")
+log_file_unschedule_time__for_training_log.write(f"\n{datetime.datetime.now()} :: ------------------------------- Start Time time.time() : {time.time()} ------------------------------- ")
 
 for epoch in range(epochs):
     start_time = time.time()
 
     log_file_training.write(f"\n{datetime.datetime.now()} :: ------------------------------- Training started ------------------------------- ")
+    log_file_unschedule_time__for_training_log.write(f"\n{datetime.datetime.now()} :: ------------------------------- Start of Epoch :  {epoch+1} :: {start_time}------------------------------- ")
+
     print(f'Epoch {epoch+1}') 
     log_file_training.write(f'\n{datetime.datetime.now()} :::: Epoch :  {epoch+1}') 
     log_file_training.write(f'\n{datetime.datetime.now()} :::: start_time :  {start_time}') 
@@ -684,7 +687,7 @@ for epoch in range(epochs):
     count = 0
     for inputs, labels in train_loader:
         count = count + 1
-        log_file_training.write(f'\n{datetime.datetime.now()}::------------------for inputs, labels in train_loader:) : iteration {count}-------------------------------------------- ')
+        log_file_training.write(f'\n{datetime.datetime.now()}::------------------ train loader iteration {count}-------------------------------------------- ')
 
         inputs, labels = inputs.to(device), labels.to(device)   
         # Creating new variables for the hidden state, otherwise
@@ -708,15 +711,15 @@ for epoch in range(epochs):
         #`clip_grad_norm` helps prevent the exploding gradient problem in RNNs / LSTMs.
         nn.utils.clip_grad_norm_(model.parameters(), clip)
         optimizer.step()
-        log_file_training.write(f'\n{datetime.datetime.now()} :: last step of (for inputs, labels in train_loader: ------------------------------------ ')
 
     end_time = time.time()
     epoch_time = end_time - start_time
     train_times.append(epoch_time)
-    print('Epoch [{}/{}], Time: {:.4f} seconds'.format(epoch+1, epochs, epoch_time))
-    log_file_training.write('Epoch [{}/{}], Time: {:.4f} seconds'.format(epoch+1, epochs, epoch_time))
+    print('\n{datetime.datetime.now()} Epoch [{}/{}], Time: {:.4f} seconds'.format(epoch+1, epochs, epoch_time))
+    log_file_training.write('\n{datetime.datetime.now()} Epoch [{}/{}], Time: {:.4f} seconds'.format(epoch+1, epochs, epoch_time))
+    log_file_unschedule_time__for_training_log.write('\nTraining time for Epoch [{}/{}], Time: {:.4f} seconds'.format(epoch+1, epochs, epoch_time))
+
     log_file_training.write(f'\n{datetime.datetime.now()} :: Exit (for inputs, labels in train_loader):-------------------------------------------- ')
-    print(f'\n{datetime.datetime.now()} :: Exit (for inputs, labels in train_loader):-------------------------------------------- ')
 
     val_h = model.init_hidden(batch_size)
     val_losses = []
@@ -777,9 +780,10 @@ for epoch in range(epochs):
         valid_loss_min = epoch_val_loss
     print(25*'==')
     log_file_training.write(25*'==')
+    log_file_unschedule_time__for_training_log.write(f"\n{datetime.datetime.now()} :: ------------------------------- Complete End of Epoch :  {epoch+1} :: {time.time()}------------------------------- ")
 
 
-log_file_unschedule_time__for_training_log.write(','.join(map(str, data)))
+log_file_unschedule_time__for_training_log.write(f"\n{datetime.datetime.now()} :: ------------------------------- End time time.time() : {time.time()} ------------------------------- ")
 
 fig = plt.figure(figsize = (20, 6))
 plt.subplot(1, 2, 1)
