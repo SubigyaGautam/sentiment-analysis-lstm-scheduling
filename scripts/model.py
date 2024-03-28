@@ -724,9 +724,9 @@ for epoch in range(epochs):
     end_time = time.time()
     epoch_time = end_time - start_time
     train_times.append(epoch_time)
-    print('\n{datetime.datetime.now()} Epoch [{}/{}], Time: {:.4f} seconds'.format(epoch+1, epochs, epoch_time))
-    log_file_training.write('\n{datetime.datetime.now()} Epoch [{}/{}], Time: {:.4f} seconds'.format(epoch+1, epochs, epoch_time))
-    log_file_unschedule_time__for_training_log.write('\nTraining time for Epoch [{}/{}], Time: {:.4f} seconds'.format(epoch+1, epochs, epoch_time))
+    print('\n Epoch [{}/{}], Time: {:.4f} seconds'.format(epoch+1, epochs, epoch_time))
+    log_file_training.write('Epoch [{}/{}], Time: {:.4f} seconds'.format(epoch+1, epochs, epoch_time))
+    log_file_unschedule_time__for_training_log.write('\n Training time for Epoch [{}/{}], Time: {:.4f} seconds'.format(epoch+1, epochs, epoch_time))
 
     log_file_training.write(f'\n{datetime.datetime.now()} :: Exit (for inputs, labels in train_loader):-------------------------------------------- ')
 
