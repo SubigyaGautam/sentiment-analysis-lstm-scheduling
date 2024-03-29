@@ -60,7 +60,7 @@ log_file_training = 'logFileTraining.txt'
 log_file_testing = 'logFileTesting.txt'
 
 
-smallDataSet = True
+smallDataSet = False
 scheduled = False
 
 # Define paths relative to the current script location
@@ -76,7 +76,7 @@ if smallDataSet:
         log_dir = os.path.join(script_dir, '..', 'logs','small_data_set','unscheduled')
 
 else:
-    datasetPath = '../dataset/Dummy_Musical_instruments_reviews.csv'
+    datasetPath = '../dataset/Big_processed_40k.csv'
     if scheduled:
         results = os.path.join(script_dir, '..', 'results','big_data_set' ,'scheduled')
         log_dir = os.path.join(script_dir, '..', 'logs','big_data_set','scheduled')
@@ -134,19 +134,23 @@ for dirname, _, filenames in os.walk(os.path.join(script_dir, '..', 'dataset')):
 
 # Importing Dataset
 df = pd.read_csv(datasetPath, encoding = "ISO-8859-1")
+print(df.head)
+log_file.write(f" {datetime.datetime.now()} :: {df.head} ")
 
-# Removing the unwanted columns from the dataframe and combining reviewText and summary column to one column and naming it as text
-df = df.drop(columns=["reviewerID","asin","reviewerName","helpful","unixReviewTime", "reviewTime"])
+
+if smallDataSet:
+    # Removing the unwanted columns from the dataframe and combining reviewText and summary column to one column and naming it as text
+    df = df.drop(columns=["reviewerID","asin","reviewerName","helpful","unixReviewTime", "reviewTime"])
+    print(df.overall.value_counts())
+    log_file.write(f" {datetime.datetime.now()} :: {df.overall.value_counts()}")
+
+else:
+    print(df.overall.value_counts())
+    log_file.write(f" {datetime.datetime.now()} :: {df.overall.value_counts()}")
+
 df['text'] = df['reviewText'] + ' ' + df['summary']
 del df['reviewText']
 del df['summary']
-
-print(df.head)
-print(df.overall.value_counts())
-log_file.write(f" {datetime.datetime.now()} :: {df.head} ")
-log_file.write(f" {datetime.datetime.now()} :: {df.overall.value_counts()}")
-
-
 
 # 5.0    6938
 # 4.0    2084
@@ -161,7 +165,7 @@ def sentiment_rating(rating):
         return 0
     else: 
         return 1
-    
+
 df.overall = df.overall.apply(sentiment_rating) 
 
 print(df.head)
@@ -459,9 +463,13 @@ original_dataset_size = len(train_data)
 original_dataset_size_val = len(valid_data)
 
 
+num_data_points_to_remove = 0
+num_data_points_to_remove_val = 0
+
 # Number of data points to remove
-num_data_points_to_remove = 8
-num_data_points_to_remove_val = 3
+if smallDataSet:
+    num_data_points_to_remove = 8
+    num_data_points_to_remove_val = 3
 
 # Indices of data points to remove
 indices_to_remove = torch.randperm(original_dataset_size)[:num_data_points_to_remove]
@@ -682,8 +690,6 @@ for epoch in range(epochs):
     print(f'Epoch {epoch+1}') 
     log_file_training.write(f'\n{datetime.datetime.now()} :::: Epoch :  {epoch+1}') 
     log_file_training.write(f'\n{datetime.datetime.now()} :::: start_time :  {start_time}') 
-
-
 
     train_losses = []
     train_acc = 0.0

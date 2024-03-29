@@ -41,7 +41,7 @@ import os
 
 file_csv = '../dataset/Big_dataset.csv'
 # df_train = pd.read_csv(file_csv, encoding = "ISO-8859-1",  names=["overall", "summary", "reviewText"])
-df_train = pd.read_csv(file_csv, encoding = "ISO-8859-1",  names=["rating","overall", "text"])
+df_train = pd.read_csv(file_csv, encoding = "ISO-8859-1",  names=["overall","reviewText", "summary"])
 
 
 
@@ -54,67 +54,68 @@ print(df_train.overall.value_counts())
 # 3    130000
 # 5    130000
 
-# number_of_rows_to_delete = 120000
-# # Display the original DataFrame
+number_of_rows_to_delete = 120000
+# Display the original DataFrame
 print("Original DataFrame:")
 print(df_train)
 
+# Filter out rows with a rating value of 3
+df_train = df_train[df_train['overall'] != 3]
 
 # # Identify rows where Column1 is equal to 1
-# rows_to_delete_with_1 = df_train[df_train['overall'] == 1]
-# rows_to_delete_with_2 = df_train[df_train['overall'] == 2]
-# rows_to_delete_with_4 = df_train[df_train['overall'] == 4]
-# rows_to_delete_with_5 = df_train[df_train['overall'] == 5]
+rows_to_delete_with_1 = df_train[df_train['overall'] == 1]
+rows_to_delete_with_2 = df_train[df_train['overall'] == 2]
+rows_to_delete_with_4 = df_train[df_train['overall'] == 4]
+rows_to_delete_with_5 = df_train[df_train['overall'] == 5]
 
 
 
 # # Randomly select  rows to delete
-# rows_to_delete_with_1 = rows_to_delete_with_1.sample(n=number_of_rows_to_delete)
-# rows_to_delete_with_2 = rows_to_delete_with_2.sample(n=number_of_rows_to_delete)
-# rows_to_delete_with_4 = rows_to_delete_with_4.sample(n=number_of_rows_to_delete)
-# rows_to_delete_with_5 = rows_to_delete_with_5.sample(n=number_of_rows_to_delete)
+rows_to_delete_with_1 = rows_to_delete_with_1.sample(n=number_of_rows_to_delete)
+rows_to_delete_with_2 = rows_to_delete_with_2.sample(n=number_of_rows_to_delete)
+rows_to_delete_with_4 = rows_to_delete_with_4.sample(n=number_of_rows_to_delete)
+rows_to_delete_with_5 = rows_to_delete_with_5.sample(n=number_of_rows_to_delete)
 
 
 # # Drop the selected rows from the original DataFrame
-# df_train = df_train.drop(rows_to_delete_with_1.index)
-# df_train = df_train.drop(rows_to_delete_with_2.index)
-# df_train = df_train.drop(rows_to_delete_with_4.index)
-# df_train = df_train.drop(rows_to_delete_with_5.index)
+df_train = df_train.drop(rows_to_delete_with_1.index)
+df_train = df_train.drop(rows_to_delete_with_2.index)
+df_train = df_train.drop(rows_to_delete_with_4.index)
+df_train = df_train.drop(rows_to_delete_with_5.index)
 
 
 # # Display the DataFrame after deletion
 # print(f"\nDataFrame after deleting {number_of_rows_to_delete * 4} rows")
 
-print(df_train.rating.value_counts())
+print(df_train.overall.value_counts())
 print(df_train.value_counts())
 
-def sentiment_rating(rating):
-    # Replacing ratings of 1,2 with 0 (not good) and 4,5 with 1 (good)
-    if int(rating) == 1 or int(rating) == 2:
-        return 0
-    elif int(rating) == 3:
-        return None  # Return None for ratings of 3 (to be removed later)
-    else:
-        return 1
+# def sentiment_rating(overall):
+#     if int(overall) == 1 or int(overall) == 2:
+#         return 0
+#     else:
+#         return 1
 
-# Apply the sentiment_rating function to transform the ratings column
-df_train['rating'] = df_train['rating'].apply(sentiment_rating)
+# # Apply the sentiment_rating function to transform the ratings column
+# df_train['overall'] = df_train['overall'].apply(sentiment_rating)
 
-# Remove rows with a rating of 3
-df_train = df_train[df_train['rating'].notna()]
+# Remove rows with a overall of 3
+# df_train = df_train[df_train['overall'].notna()]
 
 # Shuffle the DataFrame
 df_train = df_train.sample(frac=1, random_state=42)
 
-# Identify and delete 1000 rows with a rating value of 1
-rows_to_delete_1 = df_train[df_train['rating'] == 0].index[:1000]
-rows_to_delete_2 = df_train[df_train['rating'] == 1].index[:1000]
+#650,000 total data , removing to make it 50k
+# 25k , 25k 
+# 600,000 (649988)
 
-df_train = df_train.drop(rows_to_delete_1)
-df_train = df_train.drop(rows_to_delete_2)
-
-print(df_train.rating.value_counts())
+# 582,000 - 532,000
+# Identify and delete  rows
+print(df_train.overall.value_counts())
 print(df_train.value_counts())
+print('After deleting rows')
+# After deleting rows
+# 0    20000
+# 1    20000
 
-# Write the processed DataFrame to a new CSV file
 df_train.to_csv('processed_data.csv', index=False)
