@@ -786,7 +786,7 @@ for epoch in range(epochs):
             else:
                 modelFileName = 'state_dict_big_unsch.pth'
 
-        file_path = results + modelFileName
+        file_path = results + '/' + modelFileName
         # when you want to save only the parameters and need to rebuild the model separately.
         torch.save(model.state_dict(), file_path) 
 
@@ -824,13 +824,14 @@ plt.legend()
 plt.grid()
 plt.savefig(results +'\Loss.png')
 
-plt.plot(range(1, epoch+1), train_times, marker='o')
-plt.xlabel('Epoch')
-plt.ylabel('Training Time (seconds)')
-plt.title('Training Time per Epoch')
-plt.grid(True)
-plt.legend()
-plt.savefig(results +'\Loss.png')
+log_file_unschedule_time__for_training_log.write(f"\n{datetime.datetime.now()} :: ------------------------------- train_times : {train_times} ------------------------------- \n")
+# plt.plot(range(1, epoch+1), train_times, marker='o')
+# plt.xlabel('Epoch')
+# plt.ylabel('Training Time (seconds)')
+# plt.title('Training Time per Epoch')
+# plt.grid(True)
+# plt.legend()
+# plt.savefig(results +'\Loss.png')
 
 #  Inference
 def predict_text(text):
