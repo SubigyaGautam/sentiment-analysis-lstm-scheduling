@@ -33,8 +33,6 @@ from collections import Counter
 import time
 import datetime;
 
-
-
 text_content = ''
 
 import os
