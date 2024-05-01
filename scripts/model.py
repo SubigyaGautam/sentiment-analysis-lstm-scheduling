@@ -55,13 +55,14 @@ testing_file_path = 'testingData.txt'
 tensor_data_file_path_train = 'tensorDataTrain.txt'
 tensor_data_file_path_test = 'tensorDataTest.txt'
 training_log = 'trainingLog.txt'
-log_file_unschedule_time__for_training_log = 'unschedule_time_for_training_log.txt'
+log_file_unschedule_time__for_training_log = 'time_for_training_log.txt'
 log_file_training = 'logFileTraining.txt'
 log_file_testing = 'logFileTesting.txt'
 
 
-smallDataSet = False
-scheduled = False
+smallDataSet = 0
+scheduled = 1
+runOnGPU = 1
 
 # Define paths relative to the current script location
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -615,7 +616,7 @@ class SentimentRNN(nn.Module):
 torch.manual_seed(1)
 is_cuda = torch.cuda.is_available()
 
-if is_cuda:
+if is_cuda and runOnGPU:
     device = torch.device("cuda")
     print("GPU is available")
     log_file.write(f' GPU is available ')
@@ -642,8 +643,8 @@ print(f' embedding_dim : {embedding_dim}')
 print(f' drop_prob : 0.5 ')
 model = SentimentRNN(no_layers, vocab_size, hidden_dim, embedding_dim, drop_prob=0.5)
 
-#moving to gpu
 model.to(device)
+#moving to gpu
 
 print(model)
 log_file.write(f' \n model: : {model} ')
